@@ -6,12 +6,13 @@ repository = ""
 edition = "2021"
 
 [workspace]
-members = ["node", "pallets/staking", "runtime"]
+members = ["node", "pallets/staking", "pallets/freezer", "runtime"]
 resolver = "2"
 
 [workspace.dependencies]
 xode-runtime = { path = "./runtime", default-features = false }
 pallet-xode-staking = { path = "./pallets/staking", default-features = false }
+pallet-xode-freezer = { path = "./pallets/freezer", default-features = false }
 clap = { version = "4.5.10" }
 codec = { version = "3.6.12", default-features = false, package = "parity-scale-codec" }
 color-print = { version = "0.3.4" }

@@ -921,6 +921,16 @@ impl pallet_membership::Config<TechnicalCommitteeInstance> for Runtime {
 	type WeightInfo = pallet_membership::weights::SubstrateWeight<Runtime>;
 }
 
+impl pallet_xode_freezer::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type RuntimeFreezeReason = RuntimeFreezeReason;
+	type Currency = Balances;
+	// Freezing/thawing a native balance requires the Technical Committee to be unanimous,
+	// given the severity of removing an account's ability to spend its own funds.
+	type FreezeOrigin = EnsureAllTechnicalCommittee;
+	type WeightInfo = pallet_xode_freezer::weights::SubstrateWeight<Runtime>;
+}
+
 /// =====================
 /// Governance - Treasury
 /// =====================

@@ -29,6 +29,7 @@ smallvec = { workspace = true, default-features = true }
 docify = { workspace = true }
 serde_json = { workspace = true, default-features = false }
 pallet-xode-staking.workspace = true
+pallet-xode-freezer.workspace = true
 frame-benchmarking = { optional = true, workspace = true }
 frame-executive.workspace = true
 frame-metadata-hash-extension.workspace = true
@@ -140,6 +141,7 @@ std = [
 	"pallet-xcm-precompiles/std",
 	"pallet-message-queue/std",
 	"pallet-xode-staking/std",
+	"pallet-xode-freezer/std",
 	"pallet-session/std",
 	"pallet-sudo/std",
 	"pallet-timestamp/std",
@@ -198,6 +200,7 @@ runtime-benchmarks = [
 	"pallet-collator-selection/runtime-benchmarks",
 	"pallet-message-queue/runtime-benchmarks",
 	"pallet-xode-staking/runtime-benchmarks",
+	"pallet-xode-freezer/runtime-benchmarks",
 	"pallet-sudo/runtime-benchmarks",
 	"pallet-timestamp/runtime-benchmarks",
 	"pallet-xcm/runtime-benchmarks",
@@ -239,6 +242,7 @@ try-runtime = [
 	"pallet-collator-selection/try-runtime",
 	"pallet-message-queue/try-runtime",
 	"pallet-xode-staking/try-runtime",
+	"pallet-xode-freezer/try-runtime",
 	"pallet-session/try-runtime",
 	"pallet-sudo/try-runtime",
 	"pallet-timestamp/try-runtime",

@@ -449,8 +449,14 @@ mod runtime {
   pub type ForeignAssetsFreezer = pallet_assets_freezer::Pallet<Runtime, Instance2>;
 	#[runtime::pallet_index(105)]
   pub type PoolAssetsFreezer = pallet_assets_freezer::Pallet<Runtime, Instance3>;
-	#[runtime::pallet_index(106)] 
+	#[runtime::pallet_index(106)]
   pub type AssetConversionOps = pallet_asset_conversion_ops;
+
+	// Note: appended after every other freeze-reason-contributing pallet (the
+	// AssetsFreezer/ForeignAssetsFreezer/PoolAssetsFreezer instances above) so that adding
+	// this pallet does not shift their existing `RuntimeFreezeReason` variant encoding.
+	#[runtime::pallet_index(110)]
+	pub type XodeFreezer = pallet_xode_freezer;
 }
 
 #[docify::export(register_validate_block)]
