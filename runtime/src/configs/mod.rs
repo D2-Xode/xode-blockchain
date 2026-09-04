@@ -49,7 +49,7 @@ use frame_support::{
 };
 use frame_system::{
 	limits::{BlockLength, BlockWeights},
-	EnsureSigned, EnsureSignedBy, pallet_prelude::BlockNumberFor,
+	EnsureSigned, EnsureSignedBy, EnsureRoot, pallet_prelude::BlockNumberFor,
 	EnsureWithSuccess,
 };
 use pallet_xcm::{EnsureXcm, IsVoiceOfBody};
@@ -926,8 +926,11 @@ impl pallet_xode_freezer::Config for Runtime {
 	type RuntimeFreezeReason = RuntimeFreezeReason;
 	type Currency = Balances;
 	// Freezing/thawing a native balance requires the Technical Committee to be unanimous,
-	// given the severity of removing an account's ability to spend its own funds.
-	type FreezeOrigin = EnsureAllTechnicalCommittee;
+	// given the severity of removing an account's ability to spend its own funds. `EnsureRoot`
+	// is also accepted because `pallet_whitelist::dispatch_whitelisted_call` re-dispatches an
+	// approved call under `RawOrigin::Root`, which `EnsureAllTechnicalCommittee` alone would
+	// never match (it only recognizes the collective's own `Members(..)` origin).
+	type FreezeOrigin = EitherOfDiverse<EnsureRoot<AccountId>, EnsureAllTechnicalCommittee>;
 	type WeightInfo = pallet_xode_freezer::weights::SubstrateWeight<Runtime>;
 }
 
