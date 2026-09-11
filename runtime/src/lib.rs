@@ -60,6 +60,7 @@ use sp_version::RuntimeVersion;
 
 use frame_support::{
 	genesis_builder_helper::{build_state, get_preset},
+	traits::{ConstU32, Contains},
 	weights::{
 		constants::WEIGHT_REF_TIME_PER_SECOND, Weight, WeightToFeeCoefficient, WeightToFeeCoefficients,
 		WeightToFeePolynomial, WeightToFee as WeightToFeeConversion,
@@ -75,6 +76,7 @@ use sp_api::impl_runtime_apis;
 use sp_core::{crypto::KeyTypeId, OpaqueMetadata};
 
 use configs::{
+	EnsureTwoThirdsTechnicalCommittee,
 	RuntimeBlockWeights,
 	xcm_config::{
 		XcmConfig, XcmRouter, LocationToAccountId,
@@ -421,6 +423,10 @@ mod runtime {
     pub type Preimage = pallet_preimage;
 	#[runtime::pallet_index(60)]
     pub type Whitelist = pallet_whitelist;
+	#[runtime::pallet_index(61)]
+	pub type TxPause = pallet_tx_pause;
+	#[runtime::pallet_index(62)]
+	pub type AssetWaiting = pallet_asset_waiting;
 
 	// Pallet (Xode Blockchain)
 	#[runtime::pallet_index(70)]
@@ -477,6 +483,22 @@ type EventRecord = frame_system::EventRecord<
     <Runtime as frame_system::Config>::RuntimeEvent,
     <Runtime as frame_system::Config>::Hash,
 >;
+
+pub struct WhitelistedCalls;
+
+impl Contains<pallet_tx_pause::RuntimeCallNameOf<Runtime>> for WhitelistedCalls {
+	fn contains(full_name: &pallet_tx_pause::RuntimeCallNameOf<Runtime>) -> bool {
+		matches!(
+			(full_name.0.as_slice(), full_name.1.as_slice()),
+			(b"System", _)
+				| (b"ParachainSystem", _)
+				| (b"Timestamp", _)
+				| (b"TechnicalCommittee", _)
+				| (b"TechnicalCommitteeMembership", _)
+				| (b"Utility", _)
+		)
+	}
+}
 
 // Stable 2512 Update
 type LazyBlockOf<T> =
@@ -936,3 +958,22 @@ pallet_revive::impl_runtime_apis_plus_revive_traits! (
 		}
 	}
 );
+
+
+impl pallet_tx_pause::Config for Runtime {
+  type RuntimeEvent = RuntimeEvent;
+  type RuntimeCall = RuntimeCall;
+	type PauseOrigin = EnsureTwoThirdsTechnicalCommittee;
+	type UnpauseOrigin = EnsureTwoThirdsTechnicalCommittee;
+  type WhitelistedCalls = WhitelistedCalls;
+  type MaxNameLen = ConstU32<256>;
+  type WeightInfo = pallet_tx_pause::weights::SubstrateWeight<Runtime>;
+}
+
+impl pallet_asset_waiting::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type RuntimeCall = RuntimeCall;
+	type GovernanceMembers = TechnicalCommitteeMembership;
+	type WeightInfo = pallet_asset_waiting::weights::SubstrateWeight<Runtime>;
+}
+
