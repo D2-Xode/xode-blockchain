@@ -49,7 +49,7 @@ use frame_support::{
 };
 use frame_system::{
 	limits::{BlockLength, BlockWeights},
-	EnsureSigned, EnsureSignedBy, pallet_prelude::BlockNumberFor,
+	EnsureRoot, EnsureSigned, EnsureSignedBy, pallet_prelude::BlockNumberFor,
 	EnsureWithSuccess,
 };
 use pallet_xcm::{EnsureXcm, IsVoiceOfBody};
@@ -448,6 +448,17 @@ impl pallet_collator_selection::Config for Runtime {
 	type ValidatorRegistration = Session;
 	type WeightInfo = ();
 }
+// ================
+// Account Freezer
+// ================
+impl pallet_xode_account_freezer::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type Currency = Balances;
+	type RuntimeFreezeReason = RuntimeFreezeReason;
+	type FreezeOrigin = EnsureRoot<AccountId>; // or AssetsForceOrigin, for consistency with existing privileged ops
+	type WeightInfo = pallet_xode_account_freezer::weights::SubstrateWeight<Runtime>;
+}
+
 
 /// ======
 /// Assets

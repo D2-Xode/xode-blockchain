@@ -33,5 +33,6 @@ frame_benchmarking::define_benchmarks!(
 	[cumulus_pallet_parachain_system, ParachainSystem]
 	[cumulus_pallet_xcmp_queue, XcmpQueue]
 	[pallet_xode_staking, XodeStaking]
+	[pallet_xode_account_freezer, AccountFreezer]
 	[pallet_utility, Utility]
 );

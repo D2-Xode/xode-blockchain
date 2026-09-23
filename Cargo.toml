@@ -6,7 +6,7 @@ repository = ""
 edition = "2021"
 
 [workspace]
-members = ["node", "pallets/staking", "runtime"]
+members = ["node", "pallets/staking", "pallets/account-freezer", "runtime"]
 resolver = "2"
 
 [workspace.dependencies]
@@ -138,3 +138,4 @@ pallet-asset-conversion-tx-payment = { version = "27.0.1", default-features = fa
 pallet-assets-freezer = { version = "0.13.0", default-features = false }
 assets-common = { version = "0.27.1", default-features = false }
 pallet-xcm-precompiles = { version = "0.3.1", default-features = false }
+pallet-xode-account-freezer = { path = "./pallets/account-freezer", default-features = false }

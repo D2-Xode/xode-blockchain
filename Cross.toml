@@ -1,0 +1,8 @@
+[target.aarch64-unknown-linux-gnu]
+image = "ghcr.io/cross-rs/aarch64-unknown-linux-gnu:edge"
+pre-build = [
+    "apt-get update && apt-get install --assume-yes protobuf-compiler pkg-config libssl-dev"
+]
+
+[build.env]
+passthrough = ["WASM_BUILD_WORKSPACE_HINT"]

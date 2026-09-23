@@ -261,7 +261,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 	spec_name: Cow::Borrowed("xode-runtime"),
 	impl_name: Cow::Borrowed("xode-runtime"),
 	authoring_version: 1,
-	spec_version: 13,
+	spec_version: 14,
 	impl_version: 0,
 	apis: RUNTIME_API_VERSIONS,
 	transaction_version: 1,
@@ -425,6 +425,9 @@ mod runtime {
 	// Pallet (Xode Blockchain)
 	#[runtime::pallet_index(70)]
 	pub type XodeStaking = pallet_xode_staking;
+
+	#[runtime::pallet_index(71)]
+	pub type AccountFreezer = pallet_xode_account_freezer;
 
 	// Utility
 	#[runtime::pallet_index(80)]	
