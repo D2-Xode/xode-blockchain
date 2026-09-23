@@ -6,11 +6,12 @@ repository = ""
 edition = "2021"
 
 [workspace]
-members = ["node", "pallets/staking", "pallets/account-freezer", "runtime"]
+members = ["node", "pallets/asset-waiting", "pallets/staking", "pallets/account-freezer", "runtime"]
 resolver = "2"
 
 [workspace.dependencies]
 xode-runtime = { path = "./runtime", default-features = false }
+pallet-asset-waiting = { path = "./pallets/asset-waiting", default-features = false }
 pallet-xode-staking = { path = "./pallets/staking", default-features = false }
 clap = { version = "4.5.10" }
 codec = { version = "3.6.12", default-features = false, package = "parity-scale-codec" }
@@ -123,6 +124,7 @@ pallet-treasury = { version = "44.0.0", default-features = false }
 pallet-collective = { version = "45.0.0", default-features = false }
 pallet-membership = { version = "45.0.0", default-features = false }
 pallet-preimage = { version = "45.0.0", default-features = false }
+pallet-tx-pause = { version = "26.0.0", default-features = false }
 pallet-whitelist = { version = "44.0.0", default-features = false }
 # Utility
 pallet-root-testing = { version = "21.0.0", default-features = false }
