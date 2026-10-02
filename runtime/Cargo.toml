@@ -28,6 +28,7 @@ scale-info = { features = [
 smallvec = { workspace = true, default-features = true }
 docify = { workspace = true }
 serde_json = { workspace = true, default-features = false }
+pallet-asset-waiting.workspace = true
 pallet-xode-staking.workspace = true
 pallet-xode-account-freezer.workspace = true
 frame-benchmarking = { optional = true, workspace = true }
@@ -91,6 +92,7 @@ pallet-treasury.workspace = true
 pallet-collective.workspace = true
 pallet-membership.workspace = true
 pallet-preimage.workspace = true
+pallet-tx-pause.workspace = true
 pallet-whitelist.workspace = true
 # Utility
 pallet-root-testing.workspace = true
@@ -129,6 +131,7 @@ std = [
 	"frame-system/std",
 	"frame-try-runtime?/std",
 	"log/std",
+	"pallet-asset-waiting/std",
 	"pallet-aura/std",
 	"pallet-authorship/std",
 	"pallet-balances/std",
@@ -173,10 +176,12 @@ std = [
 	"xcm/std",
 	"pallet-assets/std",
 	"pallet-contracts/std",
+	"pallet-indices/std",
 	"pallet-treasury/std",
 	"pallet-collective/std",
 	"pallet-membership/std",
 	"pallet-preimage/std",
+	"pallet-tx-pause/std",
 	"pallet-whitelist/std",
 	"pallet-root-testing/std",
 	"pallet-utility/std",
@@ -186,6 +191,7 @@ std = [
 ]
 
 runtime-benchmarks = [
+	"pallet-asset-waiting/runtime-benchmarks",
 	"cumulus-pallet-parachain-system/runtime-benchmarks",
 	"cumulus-pallet-session-benchmarking/runtime-benchmarks",
 	"cumulus-pallet-xcmp-queue/runtime-benchmarks",
@@ -223,11 +229,13 @@ runtime-benchmarks = [
 	"pallet-collective/runtime-benchmarks",
 	"pallet-membership/runtime-benchmarks",
 	"pallet-preimage/runtime-benchmarks",
+	"pallet-tx-pause/runtime-benchmarks",
 	"pallet-whitelist/runtime-benchmarks",
 	"pallet-utility/runtime-benchmarks",
 ]
 
 try-runtime = [
+	"pallet-asset-waiting/try-runtime",
 	"cumulus-pallet-aura-ext/try-runtime",
 	"cumulus-pallet-parachain-system/try-runtime",
 	"cumulus-pallet-xcm/try-runtime",
@@ -263,6 +271,7 @@ try-runtime = [
 	"pallet-collective/try-runtime",
 	"pallet-membership/try-runtime",
 	"pallet-preimage/try-runtime",
+	"pallet-tx-pause/try-runtime",
 	"pallet-whitelist/try-runtime",
 	"pallet-root-testing/try-runtime",
 	"pallet-utility/try-runtime",

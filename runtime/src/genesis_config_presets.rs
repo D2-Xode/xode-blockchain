@@ -2,7 +2,7 @@ use cumulus_primitives_core::ParaId;
 
 use crate::{
 	AccountId, BalancesConfig, CollatorSelectionConfig, ParachainInfoConfig, PolkadotXcmConfig,
-	RuntimeGenesisConfig, SessionConfig, SessionKeys, EXISTENTIAL_DEPOSIT,
+	RuntimeGenesisConfig, SessionConfig, SessionKeys, TxPauseConfig, EXISTENTIAL_DEPOSIT,
 	// Membership - Technical council (sudo replacement) and Treasury council
 	TechnicalCommitteeMembershipConfig,configs::TechnicalMembershipMaxMembers,
 	TreasuryCouncilMembershipConfig,configs::TreasuryMembershipMaxMembers,
@@ -79,6 +79,25 @@ fn testnet_genesis(
 		},
 		polkadot_xcm: PolkadotXcmConfig {
 			safe_xcm_version: Some(SAFE_XCM_VERSION),
+			..Default::default()
+		},
+		tx_pause: TxPauseConfig {
+			paused: vec![
+				(
+					b"AssetConversion".to_vec().try_into().expect("pallet name fits MaxNameLen"),
+					b"swap_exact_tokens_for_tokens"
+						.to_vec()
+						.try_into()
+						.expect("call name fits MaxNameLen"),
+				),
+				(
+					b"AssetConversion".to_vec().try_into().expect("pallet name fits MaxNameLen"),
+					b"swap_tokens_for_exact_tokens"
+						.to_vec()
+						.try_into()
+						.expect("call name fits MaxNameLen"),
+				),
+			],
 			..Default::default()
 		},
 		technical_committee_membership: TechnicalCommitteeMembershipConfig {

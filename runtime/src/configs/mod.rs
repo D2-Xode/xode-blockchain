@@ -36,6 +36,7 @@ use frame_support::{
 	ord_parameter_types,
 	parameter_types,
 	traits::{
+		InsideBoth,
 		ConstBool, ConstU32, ConstU64, ConstU128, ConstU8, EitherOfDiverse, TransformOrigin, VariantCountOf,
 		AsEnsureOriginWithArg,Randomness, LinearStoragePrice,
 		fungible::{Balanced, Credit, HoldConsideration},
@@ -81,6 +82,8 @@ use super::{
 	MAXIMUM_BLOCK_WEIGHT, UNIT, MICRO_UNIT, NORMAL_DISPATCH_RATIO, SLOT_DURATION, VERSION,
 	// Governance
 	TechnicalCommittee, TreasuryCouncil,
+	AssetWaiting,
+	TxPause,
 	// Revive
 	Address, Signature, EthExtraImpl
 };
@@ -110,6 +113,7 @@ impl frame_support::traits::Contains<RuntimeCall> for FilterRuntimeCall {
 
 parameter_types! {
 	pub const Version: RuntimeVersion = VERSION;
+	pub const AssetPoolCooldownPeriod: BlockNumber = 14_400;
 	// This part is copied from Substrate's `bin/node/runtime/src/lib.rs`.
 	//  The `RuntimeBlockLength` and `RuntimeBlockWeights` exist here because the
 	// `DeletionWeightLimit` and `DeletionQueueDepth` depend on those to parameterize
@@ -155,6 +159,7 @@ impl frame_system::Config for Runtime {
 	type BlockHashCount = BlockHashCount;
 	/// Runtime version.
 	type Version = Version;
+	type BaseCallFilter = InsideBoth<TxPause, AssetWaiting>;
 	/// The data to be stored in an account.
 	type AccountData = pallet_balances::AccountData<Balance>;
 	/// The weight of database operations that the runtime can invoke.
