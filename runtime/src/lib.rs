@@ -262,8 +262,8 @@ impl_opaque_keys! {
 pub const VERSION: RuntimeVersion = RuntimeVersion {
 	spec_name: Cow::Borrowed("xode-runtime"),
 	impl_name: Cow::Borrowed("xode-runtime"),
-	authoring_version: 1,
-	spec_version: 14,
+	authoring_version: 15,
+	spec_version: 15,
 	impl_version: 0,
 	apis: RUNTIME_API_VERSIONS,
 	transaction_version: 1,
