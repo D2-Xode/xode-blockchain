@@ -3358,7 +3358,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8d162beedaa69905488a8da94f5ac3edb4dd4788b732fadb7bd120b2625c1976"
 dependencies = [
  "data-encoding",
- "syn 1.0.109",
+ "syn 2.0.106",
 ]
 
 [[package]]
@@ -7859,6 +7859,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "pallet-asset-waiting"
+version = "0.1.0"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "pallet-asset-conversion",
+ "pallet-assets",
+ "pallet-balances",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+]
+
+[[package]]
 name = "pallet-assets"
 version = "48.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -9152,6 +9168,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "pallet-tx-pause"
+version = "26.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8d236754714ecf2b07b48785edfbdb630ba6c21a155816470c6d65bab5750f12"
+dependencies = [
+ "docify 0.2.9",
+ "parity-scale-codec",
+ "polkadot-sdk-frame",
+ "scale-info",
+]
+
+[[package]]
 name = "pallet-utility"
 version = "45.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -9265,6 +9293,21 @@ dependencies = [
  "staging-xcm",
  "staging-xcm-executor",
  "tracing",
+]
+
+[[package]]
+name = "pallet-xode-account-freezer"
+version = "0.1.0"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "pallet-balances",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
 ]
 
 [[package]]
@@ -18223,7 +18266,7 @@ dependencies = [
 
 [[package]]
 name = "xode-node"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "clap",
  "color-print",
@@ -18283,7 +18326,7 @@ dependencies = [
 
 [[package]]
 name = "xode-runtime"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "assets-common",
  "cumulus-pallet-aura-ext",
@@ -18311,6 +18354,7 @@ dependencies = [
  "pallet-asset-conversion-ops",
  "pallet-asset-conversion-tx-payment",
  "pallet-asset-rate",
+ "pallet-asset-waiting",
  "pallet-assets",
  "pallet-assets-freezer",
  "pallet-assets-precompiles",
@@ -18332,10 +18376,12 @@ dependencies = [
  "pallet-transaction-payment",
  "pallet-transaction-payment-rpc-runtime-api",
  "pallet-treasury",
+ "pallet-tx-pause",
  "pallet-utility",
  "pallet-whitelist",
  "pallet-xcm",
  "pallet-xcm-precompiles",
+ "pallet-xode-account-freezer",
  "pallet-xode-staking",
  "parachains-common",
  "parity-scale-codec",

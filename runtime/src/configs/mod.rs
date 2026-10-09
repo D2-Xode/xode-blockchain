@@ -36,6 +36,7 @@ use frame_support::{
 	ord_parameter_types,
 	parameter_types,
 	traits::{
+		InsideBoth,
 		ConstBool, ConstU32, ConstU64, ConstU128, ConstU8, EitherOfDiverse, TransformOrigin, VariantCountOf,
 		AsEnsureOriginWithArg,Randomness, LinearStoragePrice,
 		fungible::{Balanced, Credit, HoldConsideration},
@@ -49,7 +50,7 @@ use frame_support::{
 };
 use frame_system::{
 	limits::{BlockLength, BlockWeights},
-	EnsureSigned, EnsureSignedBy, EnsureRoot, pallet_prelude::BlockNumberFor,
+	EnsureRoot, EnsureSigned, EnsureSignedBy, pallet_prelude::BlockNumberFor,
 	EnsureWithSuccess,
 };
 use pallet_xcm::{EnsureXcm, IsVoiceOfBody};
@@ -81,6 +82,8 @@ use super::{
 	MAXIMUM_BLOCK_WEIGHT, UNIT, MICRO_UNIT, NORMAL_DISPATCH_RATIO, SLOT_DURATION, VERSION,
 	// Governance
 	TechnicalCommittee, TreasuryCouncil,
+	AssetWaiting,
+	TxPause,
 	// Revive
 	Address, Signature, EthExtraImpl
 };
@@ -110,6 +113,7 @@ impl frame_support::traits::Contains<RuntimeCall> for FilterRuntimeCall {
 
 parameter_types! {
 	pub const Version: RuntimeVersion = VERSION;
+	pub const AssetPoolCooldownPeriod: BlockNumber = 14_400;
 	// This part is copied from Substrate's `bin/node/runtime/src/lib.rs`.
 	//  The `RuntimeBlockLength` and `RuntimeBlockWeights` exist here because the
 	// `DeletionWeightLimit` and `DeletionQueueDepth` depend on those to parameterize
@@ -155,6 +159,7 @@ impl frame_system::Config for Runtime {
 	type BlockHashCount = BlockHashCount;
 	/// Runtime version.
 	type Version = Version;
+	type BaseCallFilter = InsideBoth<TxPause, AssetWaiting>;
 	/// The data to be stored in an account.
 	type AccountData = pallet_balances::AccountData<Balance>;
 	/// The weight of database operations that the runtime can invoke.
@@ -448,6 +453,17 @@ impl pallet_collator_selection::Config for Runtime {
 	type ValidatorRegistration = Session;
 	type WeightInfo = ();
 }
+// ================
+// Account Freezer
+// ================
+impl pallet_xode_account_freezer::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type Currency = Balances;
+	type RuntimeFreezeReason = RuntimeFreezeReason;
+	type FreezeOrigin = EnsureRoot<AccountId>; // or AssetsForceOrigin, for consistency with existing privileged ops
+	type WeightInfo = pallet_xode_account_freezer::weights::SubstrateWeight<Runtime>;
+}
+
 
 /// ======
 /// Assets
