@@ -461,6 +461,9 @@ impl pallet_xode_account_freezer::Config for Runtime {
 	type Currency = Balances;
 	type RuntimeFreezeReason = RuntimeFreezeReason;
 	type FreezeOrigin = EnsureRoot<AccountId>; // or AssetsForceOrigin, for consistency with existing privileged ops
+	type MinLockDuration = ConstU32<{ 7 * DAYS }>;
+	type MaxLockDuration = ConstU32<{ 365 * DAYS }>;
+	type LockFeeReserve = ConstU128<{ UNIT / 10 }>; // 0.1 XON
 	type WeightInfo = pallet_xode_account_freezer::weights::SubstrateWeight<Runtime>;
 }
 

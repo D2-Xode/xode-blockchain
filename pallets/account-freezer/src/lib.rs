@@ -20,9 +20,9 @@ mod benchmarking;
 pub mod pallet {
 	use super::*;
 	use frame_support::pallet_prelude::*;
-	use frame_support::traits::fungible::{InspectFreeze, MutateFreeze};
+	use frame_support::traits::fungible::{Inspect, InspectFreeze, MutateFreeze};
 	use frame_system::pallet_prelude::*;
-	use sp_runtime::traits::{Bounded, Zero};
+	use sp_runtime::traits::{Bounded, Saturating, Zero};
 
 	pub type BalanceOf<T> = <<T as Config>::Currency as frame_support::traits::fungible::Inspect<
 		<T as frame_system::Config>::AccountId,
@@ -42,22 +42,56 @@ pub mod pallet {
 		/// Origin allowed to freeze and thaw accounts.
 		type FreezeOrigin: EnsureOrigin<Self::RuntimeOrigin>;
 
+		/// Shortest duration (in blocks) accepted by `lock_self`.
+		#[pallet::constant]
+		type MinLockDuration: Get<BlockNumberFor<Self>>;
+
+		/// Longest duration (in blocks) accepted by `lock_self`.
+		#[pallet::constant]
+		type MaxLockDuration: Get<BlockNumberFor<Self>>;
+
+		/// Free balance `lock_self` always leaves unlocked, so the owner can still pay fees
+		/// (e.g. for `unlock_expired`).
+		#[pallet::constant]
+		type LockFeeReserve: Get<BalanceOf<Self>>;
+
 		type WeightInfo: WeightInfo;
 	}
 
 	#[pallet::pallet]
 	pub struct Pallet<T>(_);
 
-	/// Freeze reason contributed by this pallet, folded into `RuntimeFreezeReason`.
+	/// Freeze reasons contributed by this pallet, folded into `RuntimeFreezeReason`.
+	/// Each reason holds its own amount; the account's frozen balance is the largest of them.
 	#[pallet::composite_enum]
 	pub enum FreezeReason {
+		/// Admin / compliance freeze, set by `FreezeOrigin`.
 		AccountFrozen,
+		/// The owner's own time lock, set by `lock_self`.
+		SelfLocked,
+	}
+
+	/// An account's own time lock: `amount` stays frozen until block `until`.
+	#[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+	pub struct SelfLock<Balance, BlockNumber> {
+		pub amount: Balance,
+		pub until: BlockNumber,
 	}
 
 	/// Accounts currently frozen by this pallet.
 	#[pallet::storage]
 	pub type Frozen<T: Config> =
 		StorageMap<_, Blake2_128Concat, T::AccountId, (), OptionQuery>;
+
+	/// Self-locks, one per account.
+	#[pallet::storage]
+	pub type SelfLocks<T: Config> = StorageMap<
+		_,
+		Blake2_128Concat,
+		T::AccountId,
+		SelfLock<BalanceOf<T>, BlockNumberFor<T>>,
+		OptionQuery,
+	>;
 
 	#[pallet::event]
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
@@ -70,6 +104,10 @@ pub mod pallet {
 		AccountThawed { who: T::AccountId },
 		/// A specific amount was released from an account's freeze by `FreezeOrigin`.
 		AmountThawed { who: T::AccountId, amount: BalanceOf<T> },
+		/// An account locked its own balance; `amount` is the lock's new total.
+		SelfLocked { who: T::AccountId, amount: BalanceOf<T>, until: BlockNumberFor<T> },
+		/// An expired self-lock was released.
+		SelfUnlocked { who: T::AccountId, amount: BalanceOf<T> },
 	}
 
 	#[pallet::error]
@@ -80,6 +118,18 @@ pub mod pallet {
 		NotFrozen,
 		/// The requested thaw amount exceeds what's currently frozen.
 		AmountExceedsFrozen,
+		/// `lock_self` was called with a zero amount.
+		ZeroAmount,
+		/// Requested duration is below `MinLockDuration`.
+		DurationTooShort,
+		/// Requested duration exceeds `MaxLockDuration`.
+		DurationTooLong,
+		/// The lock's total plus `LockFeeReserve` would exceed the account's free balance.
+		InsufficientBalance,
+		/// The account has no self-lock.
+		NotLocked,
+		/// `unlock_expired` was called before the lock's expiry block.
+		NotYetExpired,
 	}
 
 	#[pallet::call]
@@ -145,6 +195,55 @@ pub mod pallet {
 			}
 
 			Self::deposit_event(Event::AmountThawed { who, amount });
+			Ok(())
+		}
+
+		/// Freeze `amount` more of the caller's own native balance until at least now + `duration`.
+		/// Adding to an active lock sums the amounts, and the unlock block never moves earlier.
+		/// An expired lock that was never released is replaced, not added to.
+		#[pallet::call_index(4)]
+		#[pallet::weight(<T as Config>::WeightInfo::lock_self())]
+		pub fn lock_self(
+			origin: OriginFor<T>,
+			amount: BalanceOf<T>,
+			duration: BlockNumberFor<T>,
+		) -> DispatchResult {
+			let who = ensure_signed(origin)?;
+			ensure!(!amount.is_zero(), Error::<T>::ZeroAmount);
+			ensure!(duration >= T::MinLockDuration::get(), Error::<T>::DurationTooShort);
+			ensure!(duration <= T::MaxLockDuration::get(), Error::<T>::DurationTooLong);
+
+			let now = frame_system::Pallet::<T>::block_number();
+			let (total, until) = match SelfLocks::<T>::get(&who) {
+				Some(l) if now < l.until =>
+					(l.amount.saturating_add(amount), l.until.max(now.saturating_add(duration))),
+				_ => (amount, now.saturating_add(duration)),
+			};
+			// `set_freeze` doesn't check the balance, so check it here, keeping `LockFeeReserve` free.
+			ensure!(
+				T::Currency::balance(&who) >= total.saturating_add(T::LockFeeReserve::get()),
+				Error::<T>::InsufficientBalance
+			);
+
+			T::Currency::set_freeze(&FreezeReason::SelfLocked.into(), &who, total)?;
+			SelfLocks::<T>::insert(&who, SelfLock { amount: total, until });
+
+			Self::deposit_event(Event::SelfLocked { who, amount: total, until });
+			Ok(())
+		}
+
+		/// Permissionless: release `who`'s self-lock once its expiry block has passed.
+		#[pallet::call_index(5)]
+		#[pallet::weight(<T as Config>::WeightInfo::unlock_expired())]
+		pub fn unlock_expired(origin: OriginFor<T>, who: T::AccountId) -> DispatchResult {
+			ensure_signed(origin)?;
+			let lock = SelfLocks::<T>::get(&who).ok_or(Error::<T>::NotLocked)?;
+			ensure!(frame_system::Pallet::<T>::block_number() >= lock.until, Error::<T>::NotYetExpired);
+
+			T::Currency::thaw(&FreezeReason::SelfLocked.into(), &who)?;
+			SelfLocks::<T>::remove(&who);
+
+			Self::deposit_event(Event::SelfUnlocked { who, amount: lock.amount });
 			Ok(())
 		}
 	}

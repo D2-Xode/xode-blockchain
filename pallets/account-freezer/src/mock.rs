@@ -1,4 +1,4 @@
-use frame_support::{derive_impl, parameter_types, traits::{ConstU32, VariantCountOf}};
+use frame_support::{derive_impl, parameter_types, traits::{ConstU128, ConstU32, ConstU64, VariantCountOf}};
 use sp_runtime::{traits::IdentityLookup, BuildStorage};
 
 pub type AccountId = u64;
@@ -55,6 +55,9 @@ impl crate::Config for Test {
 	type Currency = Balances;
 	type RuntimeFreezeReason = RuntimeFreezeReason;
 	type FreezeOrigin = frame_system::EnsureRoot<AccountId>;
+	type MinLockDuration = ConstU64<10>;
+	type MaxLockDuration = ConstU64<100>;
+	type LockFeeReserve = ConstU128<1_000>;
 	type WeightInfo = ();
 }
 
