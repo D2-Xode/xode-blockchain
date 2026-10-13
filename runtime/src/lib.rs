@@ -427,6 +427,10 @@ mod runtime {
 	pub type TxPause = pallet_tx_pause;
 	#[runtime::pallet_index(62)]
 	pub type AssetWaiting = pallet_asset_waiting;
+	#[runtime::pallet_index(63)]
+	pub type Vesting = orml_vesting;
+	#[runtime::pallet_index(64)]
+	pub type VestingAdmins = pallet_membership::Pallet<Runtime, Instance3>;
 
 	// Pallet (Xode Blockchain)
 	#[runtime::pallet_index(70)]

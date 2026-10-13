@@ -31,6 +31,7 @@ serde_json = { workspace = true, default-features = false }
 pallet-asset-waiting.workspace = true
 pallet-xode-staking.workspace = true
 pallet-xode-account-freezer.workspace = true
+orml-vesting.workspace = true
 frame-benchmarking = { optional = true, workspace = true }
 frame-executive.workspace = true
 frame-metadata-hash-extension.workspace = true
@@ -145,6 +146,7 @@ std = [
 	"pallet-message-queue/std",
 	"pallet-xode-staking/std",
 	"pallet-xode-account-freezer/std",
+	"orml-vesting/std",
 	"pallet-session/std",
 	"pallet-sudo/std",
 	"pallet-timestamp/std",
@@ -207,6 +209,7 @@ runtime-benchmarks = [
 	"pallet-message-queue/runtime-benchmarks",
 	"pallet-xode-staking/runtime-benchmarks",
 	"pallet-xode-account-freezer/runtime-benchmarks",
+	"orml-vesting/runtime-benchmarks",
 	"pallet-sudo/runtime-benchmarks",
 	"pallet-timestamp/runtime-benchmarks",
 	"pallet-xcm/runtime-benchmarks",
@@ -251,6 +254,7 @@ try-runtime = [
 	"pallet-message-queue/try-runtime",
 	"pallet-xode-staking/try-runtime",
 	"pallet-xode-account-freezer/try-runtime",
+	"orml-vesting/try-runtime",
 	"pallet-session/try-runtime",
 	"pallet-sudo/try-runtime",
 	"pallet-timestamp/try-runtime",

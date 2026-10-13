@@ -27,7 +27,7 @@
 pub mod xcm_config;
 use alloc::vec;
 // Substrate and Polkadot dependencies
-use crate::{Timestamp, XodeStaking, Preimage, AssetsFreezer, PoolAssetsFreezer, Assets, ForeignAssets, ForeignAssetsFreezer, PoolAssets, LocationToAccountId};
+use crate::{Timestamp, XodeStaking, VestingAdmins, Preimage, AssetsFreezer, PoolAssetsFreezer, Assets, ForeignAssets, ForeignAssetsFreezer, PoolAssets, LocationToAccountId};
 use cumulus_pallet_parachain_system::RelayNumberMonotonicallyIncreases;
 use cumulus_primitives_core::{AggregateMessageOrigin, ParaId};
 use frame_support::{
@@ -467,6 +467,60 @@ impl pallet_xode_account_freezer::Config for Runtime {
 	type WeightInfo = pallet_xode_account_freezer::weights::SubstrateWeight<Runtime>;
 }
 
+// =======
+// Vesting
+// =======
+pub type VestingAdminsInstance = pallet_membership::Instance3;
+
+parameter_types! {
+	pub const MinVestedTransfer: Balance = 100 * UNIT;
+	pub const MaxVestingSchedules: u32 = 50;
+	pub const VestingAdminsMaxMembers: u32 = 20;
+}
+
+/// Accounts allowed to call `Vesting::vested_transfer`, managed by the Treasury Council.
+impl pallet_membership::Config<VestingAdminsInstance> for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type AddOrigin = EnsureTwoThirdsTreasuryCouncil;
+	type RemoveOrigin = EnsureTwoThirdsTreasuryCouncil;
+	type SwapOrigin = EnsureTwoThirdsTreasuryCouncil;
+	type ResetOrigin = EnsureTwoThirdsTreasuryCouncil;
+	type PrimeOrigin = EnsureTwoThirdsTreasuryCouncil;
+	type MembershipInitialized = ();
+	type MembershipChanged = ();
+	type MaxMembers = VestingAdminsMaxMembers;
+	type WeightInfo = pallet_membership::weights::SubstrateWeight<Runtime>;
+}
+
+impl orml_vesting::Config for Runtime {
+	type Currency = Balances;
+	type MinVestedTransfer = MinVestedTransfer;
+	// Only VestingAdmins members; the vested funds come from the calling admin.
+	type VestedTransferOrigin = EnsureSignedBy<VestingAdmins, AccountId>;
+	// TODO: replace with benchmarked weights (see runtime/src/benchmarks.rs) before mainnet.
+	type WeightInfo = ();
+	type MaxVestingSchedules = MaxVestingSchedules;
+	// Schedules count relay-chain blocks (6s), so they are unaffected by parachain block time.
+	type BlockNumberProvider = cumulus_pallet_parachain_system::RelaychainDataProvider<Runtime>;
+	#[cfg(feature = "runtime-benchmarks")]
+	type BenchmarkHelper = VestingBenchmarkHelper;
+}
+
+#[cfg(feature = "runtime-benchmarks")]
+pub struct VestingBenchmarkHelper;
+#[cfg(feature = "runtime-benchmarks")]
+impl orml_vesting::BenchmarkHelper<AccountId, Balance> for VestingBenchmarkHelper {
+	fn get_vesting_account_and_amount() -> Option<(AccountId, Balance)> {
+		use frame_support::traits::SortedMembers;
+		let admin: AccountId = frame_benchmarking::account("vesting_admin", 0, 0);
+		if !<VestingAdmins as SortedMembers<AccountId>>::contains(&admin) {
+			<VestingAdmins as SortedMembers<AccountId>>::add(&admin);
+		}
+		// Extra free balance for fees on top of the vested amount.
+		Some((admin, UNIT))
+	}
+}
+
 
 /// ======
 /// Assets
@@ -476,7 +530,7 @@ pub const fn deposit(items: u32, bytes: u32) -> Balance {
 }
 
 parameter_types! {
-	pub const AssetDeposit: Balance = 10_000 * UNIT;
+	pub const AssetDeposit: Balance = 100 * UNIT;
 	pub const AssetAccountDeposit: Balance = deposit(1, 16);
 	pub const ApprovalDeposit: Balance = EXISTENTIAL_DEPOSIT;
 	pub const AssetsStringLimit: u32 = 50;
@@ -1025,7 +1079,7 @@ parameter_types! {
 	pub const MaxStalingPeriod: BlockNumber = MINUTES * 2; 
 	pub const MaxProposedCandidates: u32 = 100;
 	pub const MaxProposedCandidateDelegates: u32 = 100;
-	pub const MinProposedCandidateBond: Balance = 10_000 * UNIT;
+	pub const MinProposedCandidateBond: Balance = 5_000 * UNIT;
 	pub const Nodes: &'static [&'static str] = &[
 		"0xe4340f4ced8ec17fd3c81bd0db4915cd2fc2eec87ade3583055ed7b274eb481b",
 		"0x2e38a92f3f9ca93a9f80df3745abfa698607f89235e817f9b766a34e89c0d06d",
