@@ -200,7 +200,28 @@ pub type Executive = frame_executive::Executive<
 	frame_system::ChainContext<Runtime>,
 	Runtime,
 	AllPalletsWithSystem,
+	Migrations,
 >;
+
+/// One-time runtime migrations. Remove each entry after the upgrade that runs it.
+pub type Migrations = (RemoveXaverNode,);
+
+/// Removes Xaver node XqCdfT18i46hZUz4a495UWSbTknibTJLAuAYc4oykEAmHbvy2 (it never authored).
+/// Xaver nodes are written to storage only at block 0, so dropping it from `Nodes`
+/// is not enough; it must also be removed from the staking and collator storage.
+pub struct RemoveXaverNode;
+impl frame_support::traits::OnRuntimeUpgrade for RemoveXaverNode {
+	fn on_runtime_upgrade() -> Weight {
+		let who = AccountId::from([
+			0x72, 0xbe, 0xd6, 0xc1, 0xb4, 0x39, 0x98, 0xeb, 0xdb, 0x4f, 0x14, 0x60, 0x76, 0x0c, 0xfd, 0x1d,
+			0x89, 0x51, 0x27, 0x13, 0xe4, 0x44, 0xe4, 0xa2, 0x9d, 0x7d, 0x8e, 0x1e, 0x13, 0x07, 0xad, 0x77,
+		]);
+		pallet_xode_staking::DesiredCandidates::<Runtime>::mutate(|v| v.retain(|a| a != &who));
+		pallet_xode_staking::WaitingCandidates::<Runtime>::mutate(|v| v.retain(|a| a != &who));
+		pallet_collator_selection::Invulnerables::<Runtime>::mutate(|v| v.retain(|a| a != &who));
+		<Runtime as frame_system::Config>::DbWeight::get().reads_writes(3, 3)
+	}
+}
 
 /// Handles converting a weight scalar to a fee value, based on the scale and granularity of the
 /// node's balance type.

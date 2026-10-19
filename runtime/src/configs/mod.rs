@@ -445,7 +445,7 @@ impl pallet_collator_selection::Config for Runtime {
 	type PotId = PotId;
 	type MaxCandidates = ConstU32<100>;
 	type MinEligibleCollators = ConstU32<4>;
-	type MaxInvulnerables = ConstU32<20>;
+	type MaxInvulnerables = ConstU32<30>;
 	// should be a multiple of session or things will get inconsistent
 	type KickThreshold = Period;
 	type ValidatorId = <Self as frame_system::Config>::AccountId;
@@ -1084,7 +1084,6 @@ parameter_types! {
 		"0xe4340f4ced8ec17fd3c81bd0db4915cd2fc2eec87ade3583055ed7b274eb481b",
 		"0x2e38a92f3f9ca93a9f80df3745abfa698607f89235e817f9b766a34e89c0d06d",
 		"0x2871b4504a9e2c302d5f591b0a510d5fd9134dd8dbd141c91f366d7510e61309",
-		"0x72bed6c1b43998ebdb4f1460760cfd1d89512713e444e4a29d7d8e1e1307ad77",
 		"0xa8adc02652304a63002471f12ebeba61c6ba74b156be32c7f8e373983ee5dd56",  
 		"0x5c39ae0088c2244cef982148e0e5acc9a6bc10d3d4d81cdb7b20240951bc4253", 
 		"0xe8e73bb34c9394c31da71d91dbb237a0878a6e4e8755d8957de6be7215c94742", 
