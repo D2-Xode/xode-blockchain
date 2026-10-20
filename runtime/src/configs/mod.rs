@@ -478,7 +478,8 @@ parameter_types! {
 	pub const VestingAdminsMaxMembers: u32 = 20;
 }
 
-/// Accounts allowed to call `Vesting::vested_transfer`, managed by the Treasury Council.
+/// Accounts allowed to call `Vesting::vested_transfer` and `AssetVesting::vested_transfer`
+/// (for any local asset), managed by the Treasury Council.
 impl pallet_membership::Config<VestingAdminsInstance> for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 	type AddOrigin = EnsureTwoThirdsTreasuryCouncil;
@@ -518,6 +519,37 @@ impl orml_vesting::BenchmarkHelper<AccountId, Balance> for VestingBenchmarkHelpe
 		}
 		// Extra free balance for fees on top of the vested amount.
 		Some((admin, UNIT))
+	}
+}
+
+// =============
+// Asset Vesting
+// =============
+impl pallet_xode_asset_vesting::Config for Runtime {
+	type Assets = Assets;
+	type Freezer = AssetsFreezer;
+	type RuntimeFreezeReason = RuntimeFreezeReason;
+	// VestingAdmins members can vest any local asset; any other signed caller only an asset it
+	// owns. The vested tokens come from the caller.
+	type AdminOrigin = EnsureSignedBy<VestingAdmins, AccountId>;
+	// Reachable through `Whitelist::dispatch_whitelisted_call` (2/3 Technical Committee).
+	type ForceOrigin = EnsureRoot<AccountId>;
+	type MaxVestingSchedules = MaxVestingSchedules;
+	// Same relay-chain clock as `Vesting`.
+	type BlockNumberProvider = cumulus_pallet_parachain_system::RelaychainDataProvider<Runtime>;
+	// TODO: replace the placeholder weights with benchmarked ones before mainnet.
+	type WeightInfo = pallet_xode_asset_vesting::weights::SubstrateWeight<Runtime>;
+	#[cfg(feature = "runtime-benchmarks")]
+	type BenchmarkHelper = AssetVestingBenchmarkHelper;
+}
+
+#[cfg(feature = "runtime-benchmarks")]
+pub struct AssetVestingBenchmarkHelper;
+#[cfg(feature = "runtime-benchmarks")]
+impl pallet_xode_asset_vesting::BenchmarkHelper<AssetIdForTrustBackedAssets> for AssetVestingBenchmarkHelper {
+	fn asset_id() -> AssetIdForTrustBackedAssets {
+		// `fungibles::Create` must use `NextAssetId` when it is set.
+		pallet_assets::NextAssetId::<Runtime, TrustBackedAssetsInstance>::get().unwrap_or(1_000_000)
 	}
 }
 

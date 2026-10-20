@@ -6,7 +6,7 @@ repository = ""
 edition = "2021"
 
 [workspace]
-members = ["node", "pallets/asset-waiting", "pallets/staking", "pallets/account-freezer", "pallets/orml-vesting", "runtime"]
+members = ["node", "pallets/asset-waiting", "pallets/staking", "pallets/account-freezer", "pallets/orml-vesting", "pallets/asset-vesting", "runtime"]
 resolver = "2"
 
 [workspace.dependencies]
@@ -143,3 +143,4 @@ pallet-xcm-precompiles = { version = "0.3.1", default-features = false }
 pallet-xode-account-freezer = { path = "./pallets/account-freezer", default-features = false }
 # Vesting (vendored ORML, polkadot-stable2512 — see pallets/orml-vesting/VENDORED.md)
 orml-vesting = { path = "./pallets/orml-vesting", default-features = false }
+pallet-xode-asset-vesting = { path = "./pallets/asset-vesting", default-features = false }

@@ -35,5 +35,6 @@ frame_benchmarking::define_benchmarks!(
 	[pallet_xode_staking, XodeStaking]
 	[pallet_xode_account_freezer, AccountFreezer]
 	[orml_vesting, Vesting]
+	[pallet_xode_asset_vesting, AssetVesting]
 	[pallet_utility, Utility]
 );

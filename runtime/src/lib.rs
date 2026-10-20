@@ -452,6 +452,8 @@ mod runtime {
 	pub type Vesting = orml_vesting;
 	#[runtime::pallet_index(64)]
 	pub type VestingAdmins = pallet_membership::Pallet<Runtime, Instance3>;
+	#[runtime::pallet_index(65)]
+	pub type AssetVesting = pallet_xode_asset_vesting;
 
 	// Pallet (Xode Blockchain)
 	#[runtime::pallet_index(70)]
