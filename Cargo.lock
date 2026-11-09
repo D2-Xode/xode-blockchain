@@ -7761,6 +7761,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "orml-vesting"
+version = "1.5.0"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "pallet-balances",
+ "parity-scale-codec",
+ "scale-info",
+ "serde",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "p256"
 version = "0.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -9302,6 +9319,24 @@ dependencies = [
  "frame-benchmarking",
  "frame-support",
  "frame-system",
+ "pallet-balances",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+]
+
+[[package]]
+name = "pallet-xode-asset-vesting"
+version = "0.1.0"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "orml-vesting",
+ "pallet-assets",
+ "pallet-assets-freezer",
  "pallet-balances",
  "parity-scale-codec",
  "scale-info",
@@ -18350,6 +18385,7 @@ dependencies = [
  "frame-try-runtime",
  "hex-literal 1.1.0",
  "log",
+ "orml-vesting",
  "pallet-asset-conversion",
  "pallet-asset-conversion-ops",
  "pallet-asset-conversion-tx-payment",
@@ -18382,6 +18418,7 @@ dependencies = [
  "pallet-xcm",
  "pallet-xcm-precompiles",
  "pallet-xode-account-freezer",
+ "pallet-xode-asset-vesting",
  "pallet-xode-staking",
  "parachains-common",
  "parity-scale-codec",

@@ -10,6 +10,8 @@ pub trait WeightInfo {
 	fn freeze_amount() -> Weight;
 	fn thaw_account() -> Weight;
 	fn thaw_amount() -> Weight;
+	fn lock_self() -> Weight;
+	fn unlock_expired() -> Weight;
 }
 
 pub struct SubstrateWeight<T>(PhantomData<T>);
@@ -34,6 +36,17 @@ impl<T: frame_system::Config> WeightInfo for SubstrateWeight<T> {
 			.saturating_add(T::DbWeight::get().reads(1_u64))
 			.saturating_add(T::DbWeight::get().writes(1_u64))
 	}
+	// Placeholder until benchmarked: SelfLocks, Balances::Account, Balances::Freezes.
+	fn lock_self() -> Weight {
+		Weight::from_parts(20_000_000, 3593)
+			.saturating_add(T::DbWeight::get().reads(3_u64))
+			.saturating_add(T::DbWeight::get().writes(3_u64))
+	}
+	fn unlock_expired() -> Weight {
+		Weight::from_parts(20_000_000, 3593)
+			.saturating_add(T::DbWeight::get().reads(3_u64))
+			.saturating_add(T::DbWeight::get().writes(3_u64))
+	}
 }
 
 impl WeightInfo for () {
@@ -41,4 +54,6 @@ impl WeightInfo for () {
 	fn freeze_amount() -> Weight { Weight::from_parts(10_000_000, 0) }
 	fn thaw_account() -> Weight { Weight::from_parts(10_000_000, 0) }
 	fn thaw_amount() -> Weight { Weight::from_parts(10_000_000, 0) }
+	fn lock_self() -> Weight { Weight::from_parts(20_000_000, 0) }
+	fn unlock_expired() -> Weight { Weight::from_parts(20_000_000, 0) }
 }
